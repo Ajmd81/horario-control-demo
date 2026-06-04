@@ -20,10 +20,10 @@ public class Empleado {
     private String dni;
     private String telefono;
 
+    @Builder.Default
     @Column(nullable = false)
     private boolean activo = true;
 
-    /** UUID del dispositivo vinculado (device binding) */
     @Column(name = "device_id")
     private String deviceId;
 

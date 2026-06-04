@@ -19,19 +19,20 @@ public class Empresa {
     @Column(unique = true, nullable = false)
     private String slug;
 
-    // ── Demo ──────────────────────────────────────────────────────
+    @Builder.Default
     @Column(nullable = false)
     private boolean demo = false;
 
     @Column(name = "fecha_inicio_demo")
     private LocalDate fechaInicioDemo;
 
+    @Builder.Default
     @Column(name = "dias_demo")
     private Integer diasDemo = 15;
 
+    @Builder.Default
     @Column(name = "max_empleados_demo")
     private Integer maxEmpleadosDemo = 3;
-    // ──────────────────────────────────────────────────────────────
 
     public boolean isDemoExpirada() {
         if (!demo || fechaInicioDemo == null) return false;

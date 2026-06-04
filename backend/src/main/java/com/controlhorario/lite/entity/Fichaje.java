@@ -21,6 +21,7 @@ public class Fichaje {
     private Double latitud;
     private Double longitud;
 
+    @Builder.Default
     @Column(nullable = false)
     private boolean cerrado = false;
 

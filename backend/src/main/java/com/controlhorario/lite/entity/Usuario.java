@@ -5,7 +5,7 @@ import lombok.*;
 
 @Entity
 @Table(name = "usuarios",
-       uniqueConstraints = @UniqueConstraint(columnNames = {"username","empresa_id"}))
+       uniqueConstraints = @UniqueConstraint(columnNames = {"username", "empresa_id"}))
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class Usuario {
 
@@ -24,6 +24,7 @@ public class Usuario {
     @Column(nullable = false)
     private Role role;
 
+    @Builder.Default
     @Column(nullable = false)
     private boolean activo = true;
 
