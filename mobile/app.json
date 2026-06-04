@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "Control Horario Lite",
+    "slug": "control-horario-lite",
+    "version": "1.0.0",
+    "scheme": "controlhorario",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#2563eb"
+      },
+      "package": "com.controlhorario.lite",
+      "permissions": ["android.permission.ACCESS_FINE_LOCATION"]
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      ["expo-location", {
+        "locationAlwaysAndWhenInUsePermission": "Se usa para registrar tu ubicación al fichar."
+      }]
+    ]
+  }
+}
