@@ -1,6 +1,7 @@
 package com.controlhorario.lite.service;
 
-import com.controlhorario.lite.dto.*;
+import com.controlhorario.lite.dto.LoginRequest;
+import com.controlhorario.lite.dto.LoginResponse;
 import com.controlhorario.lite.entity.*;
 import com.controlhorario.lite.repository.*;
 import com.controlhorario.lite.security.JwtService;
@@ -24,12 +25,36 @@ public class AuthService {
 
     public LoginResponse login(LoginRequest req) {
 
-        // 1. Empresa
+        // ── 1. Login especial superadmin (no tiene empresa) ───────────
+        if ("superadmin".equals(req.empresaSlug())) {
+            Usuario sa = usuarioRepo.findByUsername(req.username())
+                    .orElseThrow(() -> new ResponseStatusException(
+                            HttpStatus.UNAUTHORIZED, "Credenciales incorrectas"));
+
+            if (!encoder.matches(req.password(), sa.getPassword()))
+                throw new ResponseStatusException(
+                        HttpStatus.UNAUTHORIZED, "Credenciales incorrectas");
+
+            if (!sa.isActivo())
+                throw new ResponseStatusException(
+                        HttpStatus.FORBIDDEN, "Cuenta desactivada");
+
+            return LoginResponse.builder()
+                    .token(jwtService.generateToken(sa))
+                    .username(sa.getUsername())
+                    .role(sa.getRole().name())
+                    .empresaSlug("superadmin")
+                    .empresaNombre("Superadmin")
+                    .usuarioId(sa.getId())
+                    .build();
+        }
+
+        // ── 2. Buscar empresa ──────────────────────────────────────────
         Empresa empresa = empresaRepo.findBySlug(req.empresaSlug())
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.UNAUTHORIZED, "Empresa no encontrada"));
 
-        // 2. Demo expirada
+        // ── 3. Demo expirada ───────────────────────────────────────────
         if (empresa.isDemoExpirada()) {
             log.warn("Demo expirada: {}", empresa.getSlug());
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
@@ -37,19 +62,21 @@ public class AuthService {
                     "Contacta con el administrador para activar tu licencia.");
         }
 
-        // 3. Credenciales
+        // ── 4. Credenciales ────────────────────────────────────────────
         Usuario usuario = usuarioRepo
                 .findByUsernameAndEmpresaId(req.username(), empresa.getId())
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.UNAUTHORIZED, "Credenciales incorrectas"));
 
         if (!encoder.matches(req.password(), usuario.getPassword()))
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciales incorrectas");
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED, "Credenciales incorrectas");
 
         if (!usuario.isActivo())
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cuenta desactivada");
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN, "Cuenta desactivada");
 
-        // 4. Device binding (solo EMPLOYEE con deviceId)
+        // ── 5. Device binding (solo EMPLOYEE con deviceId) ─────────────
         if (usuario.getRole() == Usuario.Role.EMPLOYEE && req.deviceId() != null) {
             Empleado emp = empleadoRepo.findByUsuarioId(usuario.getId())
                     .orElseThrow(() -> new ResponseStatusException(
@@ -65,7 +92,7 @@ public class AuthService {
             }
         }
 
-        // 5. Token
+        // ── 6. Token ───────────────────────────────────────────────────
         String token = jwtService.generateToken(usuario);
 
         Long empleadoId = empleadoRepo.findByUsuarioId(usuario.getId())
