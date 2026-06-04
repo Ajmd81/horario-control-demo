@@ -35,7 +35,7 @@ public class SecurityConfig {
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(a -> a
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/api/auth/**", "/h2-console/**").permitAll()
+                        .requestMatchers("/api/auth/**", "/h2-console/**", "/error").permitAll()
                         .requestMatchers("/api/superadmin/**").hasRole("SUPERADMIN")
                         .anyRequest().authenticated())
                 .headers(h -> h.frameOptions(f -> f.disable()))
