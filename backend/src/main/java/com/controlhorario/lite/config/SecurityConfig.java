@@ -56,4 +56,11 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", config);
         return source;
     }
+
+    @Bean
+    public org.springframework.security.core.userdetails.UserDetailsService userDetailsService() {
+        return username -> {
+            throw new org.springframework.security.core.userdetails.UsernameNotFoundException(username);
+        } ;
+    }
 }
