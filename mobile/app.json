@@ -6,21 +6,35 @@
     "scheme": "controlhorario",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#2563eb"
       },
       "package": "com.controlhorario.lite",
-      "permissions": ["android.permission.ACCESS_FINE_LOCATION"]
+      "permissions": [
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION"
+      ]
     },
     "plugins": [
       "expo-router",
       "expo-secure-store",
-      ["expo-location", {
-        "locationAlwaysAndWhenInUsePermission": "Se usa para registrar tu ubicación al fichar."
-      }]
-    ]
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Se usa para registrar tu ubicación al fichar."
+        }
+      ]
+    ],
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "8c03b73c-bbc9-4ed2-b71f-9243eed2927d"
+      }
+    }
   }
 }
