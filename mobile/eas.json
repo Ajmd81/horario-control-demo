@@ -1,12 +1,15 @@
 {
-  "cli": { "version": ">= 10.0.0" },
+  "cli": { "version": ">= 16.0.0" },
   "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
     "preview": {
-      "distribution": "internal",
       "android": { "buildType": "apk" },
-      "cache": { "disabled": true},
+      "distribution": "internal",
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://tu-backend.up.railway.app/api"
+        "EXPO_PUBLIC_API_URL": "https://horario-control-demo-production.up.railway.app/api"
       }
     },
     "production": {
