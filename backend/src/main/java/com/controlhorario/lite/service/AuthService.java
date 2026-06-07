@@ -108,7 +108,9 @@ public class AuthService {
                 .empleadoId(empleadoId);
 
         if (empresa.isDemo()) {
-            builder.demo(true).diasRestantesDemo(empresa.diasRestantesDemo());
+            builder.demo(true)
+                   .diasRestantesDemo(empresa.diasRestantesDemo())
+                   .diasTotalesDemo(empresa.getDiasDemo().longValue());
         }
 
         return builder.build();

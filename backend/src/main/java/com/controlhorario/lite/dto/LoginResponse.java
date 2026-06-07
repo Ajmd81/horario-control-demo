@@ -17,4 +17,5 @@ public class LoginResponse {
     private Long   empleadoId;
     private Boolean demo;
     private Long    diasRestantesDemo;
+    private Long    diasTotalesDemo;
 }
