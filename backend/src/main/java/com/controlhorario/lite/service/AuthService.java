@@ -92,11 +92,11 @@ public class AuthService {
             }
         }
 
-        // ── 6. Token ───────────────────────────────────────────────────
-        String token = jwtService.generateToken(usuario);
-
+        // ── 6. Token (empleadoId primero, luego el token con ese dato) ──
         Long empleadoId = empleadoRepo.findByUsuarioId(usuario.getId())
                 .map(Empleado::getId).orElse(null);
+
+        String token = jwtService.generateToken(usuario, empleadoId);
 
         LoginResponse.LoginResponseBuilder builder = LoginResponse.builder()
                 .token(token)

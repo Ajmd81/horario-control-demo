@@ -25,12 +25,24 @@ public class JwtService {
         return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
+    /** Token sin empleadoId (superadmin, admin) */
     public String generateToken(Usuario usuario) {
-        return Jwts.builder()
+        return generateToken(usuario, null);
+    }
+
+    /** Token con empleadoId (empleados que fichan) */
+    public String generateToken(Usuario usuario, Long empleadoId) {
+        var builder = Jwts.builder()
                 .subject(usuario.getUsername())
                 .claim("role", usuario.getRole().name())
                 .claim("empresaId", usuario.getEmpresa() != null ? usuario.getEmpresa().getId() : null)
-                .claim("usuarioId", usuario.getId())
+                .claim("usuarioId", usuario.getId());
+
+        if (empleadoId != null) {
+            builder.claim("empleadoId", empleadoId);
+        }
+
+        return builder
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + expirationMs))
                 .signWith(key())
