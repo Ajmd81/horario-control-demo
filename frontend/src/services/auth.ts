@@ -10,6 +10,7 @@ export interface Session {
   empleadoId?: number
   demo?: boolean
   diasRestantesDemo?: number
+  diasTotalesDemo?: number
 }
 
 export async function login(empresaSlug: string, username: string, password: string, deviceId?: string): Promise<Session> {
@@ -24,10 +25,12 @@ export async function login(empresaSlug: string, username: string, password: str
   if (data.empleadoId) localStorage.setItem('empleadoId', String(data.empleadoId))
   if (data.demo) {
     localStorage.setItem('demo', 'true')
-    localStorage.setItem('diasRestantesDemo', String(data.diasRestantesDemo ?? 15))
+    localStorage.setItem('diasRestantesDemo', String(data.diasRestantesDemo ?? 0))
+    localStorage.setItem('diasTotalesDemo', String(data.diasTotalesDemo ?? 15))
   } else {
     localStorage.removeItem('demo')
     localStorage.removeItem('diasRestantesDemo')
+    localStorage.removeItem('diasTotalesDemo')
   }
 
   return data
@@ -50,6 +53,7 @@ export function getSession(): Session | null {
     empleadoId: localStorage.getItem('empleadoId') ? Number(localStorage.getItem('empleadoId')) : undefined,
     demo: localStorage.getItem('demo') === 'true',
     diasRestantesDemo: Number(localStorage.getItem('diasRestantesDemo')) || undefined,
+    diasTotalesDemo: Number(localStorage.getItem('diasTotalesDemo')) || undefined,
   }
 }
 
