@@ -27,7 +27,7 @@ export function DemoBanner() {
       <div style={{ width: 100, height: 5, background: 'rgba(0,0,0,.12)', borderRadius: 3, overflow: 'hidden' }}>
         <div style={{ width: `${porcentaje}%`, height: '100%', background: border, borderRadius: 3 }} />
       </div>
-      <a href="mailto:info@controlhorario.es?subject=Licencia"
+      <a href="mailto:info@lavaderosepulveda.es?subject=Licencia"
          style={{ padding: '5px 12px', background: border, color: '#fff', borderRadius: 6, fontWeight: 600, fontSize: 12 }}>
         Activar licencia →
       </a>
