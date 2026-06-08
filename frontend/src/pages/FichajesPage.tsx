@@ -13,6 +13,8 @@ export function FichajesPage() {
 
   useEffect(() => { load() }, [])
 
+  const colCount = admin ? 5 : 4
+
   return (
     <div>
       <h1 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: 20 }}>
@@ -22,7 +24,7 @@ export function FichajesPage() {
         <table>
           <thead><tr>
             {admin && <th>Empleado</th>}
-            <th>Entrada</th><th>Salida</th><th>Estado</th>
+            <th>Entrada</th><th>Salida</th><th>Estado</th><th>Ubicación</th>
           </tr></thead>
           <tbody>
             {fichajes.map((f: any) => (
@@ -33,10 +35,24 @@ export function FichajesPage() {
                 <td><span className={`badge ${f.cerrado ? 'green' : 'blue'}`}>
                   {f.cerrado ? 'Completo' : 'En curso'}
                 </span></td>
+                <td>
+                  {f.latitud != null && f.longitud != null ? (
+                    
+                      href={`https://www.google.com/maps?q=${f.latitud},${f.longitud}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ color: '#2563eb', textDecoration: 'none', fontWeight: 600 }}
+                    >
+                      📍 Ver mapa
+                    </a>
+                  ) : (
+                    <span style={{ color: '#94a3b8' }}>—</span>
+                  )}
+                </td>
               </tr>
             ))}
             {fichajes.length === 0 && (
-              <tr><td colSpan={4} style={{ textAlign: 'center', color: '#94a3b8', padding: 28 }}>
+              <tr><td colSpan={colCount} style={{ textAlign: 'center', color: '#94a3b8', padding: 28 }}>
                 Sin fichajes todavía.
               </td></tr>
             )}
