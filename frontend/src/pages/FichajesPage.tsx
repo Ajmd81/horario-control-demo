@@ -24,7 +24,7 @@ export function FichajesPage() {
         <table>
           <thead><tr>
             {admin && <th>Empleado</th>}
-            <th>Entrada</th><th>Salida</th><th>Estado</th><th>Ubicación</th>
+            <th>Entrada</th><th>Salida</th><th>Estado</th><th>Ubicacion</th>
           </tr></thead>
           <tbody>
             {fichajes.map((f: any) => (
@@ -32,18 +32,20 @@ export function FichajesPage() {
                 {admin && <td>{f.empleadoNombre}</td>}
                 <td>{f.horaEntrada}</td>
                 <td>{f.horaSalida ?? '—'}</td>
-                <td><span className={`badge ${f.cerrado ? 'green' : 'blue'}`}>
-                  {f.cerrado ? 'Completo' : 'En curso'}
-                </span></td>
+                <td>
+                  <span className={f.cerrado ? 'badge green' : 'badge blue'}>
+                    {f.cerrado ? 'Completo' : 'En curso'}
+                  </span>
+                </td>
                 <td>
                   {f.latitud != null && f.longitud != null ? (
-                    
-                      href={`https://www.google.com/maps?q=${f.latitud},${f.longitud}`}
+                    <a
+                      href={'https://www.google.com/maps?q=' + f.latitud + ',' + f.longitud}
                       target="_blank"
                       rel="noopener noreferrer"
                       style={{ color: '#2563eb', textDecoration: 'none', fontWeight: 600 }}
                     >
-                      📍 Ver mapa
+                      Ver mapa
                     </a>
                   ) : (
                     <span style={{ color: '#94a3b8' }}>—</span>
@@ -52,9 +54,11 @@ export function FichajesPage() {
               </tr>
             ))}
             {fichajes.length === 0 && (
-              <tr><td colSpan={colCount} style={{ textAlign: 'center', color: '#94a3b8', padding: 28 }}>
-                Sin fichajes todavía.
-              </td></tr>
+              <tr>
+                <td colSpan={colCount} style={{ textAlign: 'center', color: '#94a3b8', padding: 28 }}>
+                  Sin fichajes todavía.
+                </td>
+              </tr>
             )}
           </tbody>
         </table>
