@@ -79,7 +79,7 @@ export function EmpleadosPage() {
           {limiteAlcanzado && (
             <p style={{ fontSize: 12, color: '#b45309', marginTop: 6, textAlign: 'right' }}>
               ⚠️ Límite demo alcanzado.{' '}
-              <a href="mailto:info@controlhorario.es?subject=Licencia">Activar licencia →</a>
+              <a href="mailto:info@lavaderosepulveda.es?subject=Licencia">Activar licencia →</a>
             </p>
           )}
         </div>
