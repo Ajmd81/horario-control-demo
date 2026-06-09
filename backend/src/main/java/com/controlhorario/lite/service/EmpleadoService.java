@@ -67,7 +67,10 @@ public class EmpleadoService {
 
     public List<EmpleadoResponse> listar(Long empresaId) {
         return empleadoRepo.findByEmpresaIdAndActivoTrue(empresaId)
-                .stream().map(this::toResponse).toList();
+                .stream()
+                .filter(e -> e.getUsuario() == null || e.getUsuario().getRole() != Usuario.Role.ADMIN)
+                .map(this::toResponse)
+                .toList();
     }
 
     @Transactional
@@ -98,3 +101,4 @@ public class EmpleadoService {
         );
     }
 }
+

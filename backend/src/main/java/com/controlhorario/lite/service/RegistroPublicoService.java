@@ -69,17 +69,6 @@ public class RegistroPublicoService {
             .build();
         usuario = usuarioRepository.save(usuario);
 
-        // 3. Empleado vinculado al usuario
-        Empleado empleado = Empleado.builder()
-            .nombre(extraerNombre(req.email()))
-            .apellido("")
-            .dni("TEMP-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase())
-            .empresa(empresa)
-            .usuario(usuario)
-            .activo(true)
-            .build();
-        empleadoRepository.save(empleado);
-
         return Map.of(
             "message", "Empresa creada correctamente",
             "slug", slug,
