@@ -52,8 +52,8 @@ export function LoginPage() {
               onChange={e => setForm(p => ({ ...p, empresaSlug: e.target.value }))} required />
           </div>
           <div className="form-group">
-            <label>Usuario</label>
-            <input placeholder="admin" value={form.username}
+            <label>Email</label>
+            <input placeholder="admin@tuempresa.com" value={form.username}
               onChange={e => setForm(p => ({ ...p, username: e.target.value }))} required />
           </div>
           <div className="form-group">
