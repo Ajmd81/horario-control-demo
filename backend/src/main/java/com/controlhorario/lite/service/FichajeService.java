@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -19,6 +20,7 @@ public class FichajeService {
 
     private final FichajeRepository fichajeRepo;
     private final EmpleadoRepository empleadoRepo;
+    private final ComputoService computoService;   // ← inyectado
 
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
@@ -30,6 +32,17 @@ public class FichajeService {
 
         Empleado emp = empleadoRepo.findById(empleadoId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        // ── Bloqueo por límite anual de horas extras (Art. 35.2 ET) ──
+        double horasContratadasDia = emp.getHorasContratadasMin() / 60.0;
+        double extrasAnio = computoService.calcularExtrasAcumuladasAnio(
+                empleadoId, LocalDate.now().getYear(), horasContratadasDia);
+
+        if (extrasAnio >= ComputoService.LIMITE_ANUAL_EXTRAS) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "LIMITE_ANUAL_EXTRAS: Has alcanzado las 80 horas extras anuales legales. " +
+                    "No se pueden registrar más fichajes este año.");
+        }
 
         Fichaje f = Fichaje.builder()
                 .horaEntrada(LocalDateTime.now())

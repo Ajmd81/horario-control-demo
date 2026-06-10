@@ -34,4 +34,8 @@ public class Empleado {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "empresa_id")
     private Empresa empresa;
+
+    @Builder.Default
+    @Column(name = "horas_contratadas_min", nullable = false)
+    private int horasContratadasMin = 480;  // 8h por defecto
 }

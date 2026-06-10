@@ -74,6 +74,17 @@ public class EmpleadoService {
     }
 
     @Transactional
+        public EmpleadoResponse actualizarJornada(Long empleadoId, Integer horasContratadasMin) {
+        if (horasContratadasMin == null || horasContratadasMin < 60 || horasContratadasMin > 720)
+                throw new IllegalArgumentException("Jornada inválida (60–720 minutos por día)");
+
+        Empleado emp = empleadoRepo.findById(empleadoId)
+                .orElseThrow(() -> new IllegalArgumentException("Empleado no encontrado"));
+        emp.setHorasContratadasMin(horasContratadasMin);
+        return toResponse(empleadoRepo.save(emp));
+        }
+
+    @Transactional
     public void resetearDispositivo(Long id) {
         Empleado e = empleadoRepo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));

@@ -1,6 +1,7 @@
 package com.controlhorario.lite.controller;
 
 import com.controlhorario.lite.dto.EmpleadoRequest;
+import com.controlhorario.lite.dto.EmpleadoResponse;
 import com.controlhorario.lite.service.EmpleadoService;
 import io.jsonwebtoken.Claims;
 import jakarta.validation.Valid;
@@ -9,6 +10,7 @@ import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/empleados")
@@ -35,6 +37,15 @@ public class EmpleadoController {
     public ResponseEntity<?> resetDispositivo(@PathVariable Long id) {
         empleadoService.resetearDispositivo(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/jornada")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<EmpleadoResponse> actualizarJornada(
+            @PathVariable Long id,
+            @RequestBody Map<String, Integer> body) {
+        Integer horasContratadasMin = body.get("horasContratadasMin");
+        return ResponseEntity.ok(empleadoService.actualizarJornada(id, horasContratadasMin));
     }
 
     @PatchMapping("/{id}/desactivar")
