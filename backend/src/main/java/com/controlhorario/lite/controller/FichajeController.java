@@ -1,6 +1,8 @@
 package com.controlhorario.lite.controller;
 
 import com.controlhorario.lite.dto.FichajeEntradaRequest;
+import com.controlhorario.lite.dto.FichajeModificarRequest;
+import com.controlhorario.lite.dto.FichajeResponse;
 import com.controlhorario.lite.service.FichajeService;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
@@ -22,9 +24,22 @@ public class FichajeController {
     public ResponseEntity<?> entrada(@RequestBody(required = false) FichajeEntradaRequest req,
                                      Authentication auth) {
         Long empleadoId = empleadoId(auth);
-        FichajeEntradaRequest r = req != null ? req : new FichajeEntradaRequest(null, null, null);
+        FichajeEntradaRequest r = req != null
+                ? req
+                : new FichajeEntradaRequest(null, null, null, null);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(fichajeService.entrada(empleadoId, r));
+    }
+
+    @PatchMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','SUPERADMIN')")
+    public ResponseEntity<FichajeResponse> modificar(
+            @PathVariable Long id,
+            @RequestBody FichajeModificarRequest req,
+            Authentication auth) {
+        Claims c = (Claims) auth.getDetails();
+        Long usuarioId = c.get("usuarioId", Long.class);
+        return ResponseEntity.ok(fichajeService.modificar(id, req, usuarioId));
     }
 
     /** El empleado ficha su salida */

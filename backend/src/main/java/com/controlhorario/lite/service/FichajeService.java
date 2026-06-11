@@ -20,7 +20,10 @@ public class FichajeService {
 
     private final FichajeRepository fichajeRepo;
     private final EmpleadoRepository empleadoRepo;
-    private final ComputoService computoService;   // ← inyectado
+    private final ComputoService computoService;
+    private final VacacionesService vacacionesService;
+    private final HashService hashService;
+    private final AuditoriaService auditoriaService;
 
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
@@ -33,25 +36,44 @@ public class FichajeService {
         Empleado emp = empleadoRepo.findById(empleadoId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        // ── Bloqueo por límite anual de horas extras (Art. 35.2 ET) ──
+        // ── Bloqueo por vacaciones aprobadas ──────────────────────────
+        if (vacacionesService.estaEnVacaciones(empleadoId, LocalDate.now()))
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "VACACIONES_APROBADAS: Hoy estás de vacaciones aprobadas.");
+
+        // ── Bloqueo por límite anual extras (Art. 35.2 ET) ────────────
         double horasContratadasDia = emp.getHorasContratadasMin() / 60.0;
         double extrasAnio = computoService.calcularExtrasAcumuladasAnio(
                 empleadoId, LocalDate.now().getYear(), horasContratadasDia);
-
-        if (extrasAnio >= ComputoService.LIMITE_ANUAL_EXTRAS) {
+        if (extrasAnio >= ComputoService.LIMITE_ANUAL_EXTRAS)
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "LIMITE_ANUAL_EXTRAS: Has alcanzado las 80 horas extras anuales legales. " +
-                    "No se pueden registrar más fichajes este año.");
-        }
+                    "LIMITE_ANUAL_EXTRAS: Has alcanzado las 80 horas extras anuales legales.");
+
+        // ── Crear fichaje ─────────────────────────────────────────────
+        Fichaje.Tipo tipo = req.tipo() != null ? req.tipo() : Fichaje.Tipo.JORNADA;
 
         Fichaje f = Fichaje.builder()
                 .horaEntrada(LocalDateTime.now())
                 .latitud(req.latitud())
                 .longitud(req.longitud())
                 .cerrado(false)
+                .tipo(tipo)
+                .observaciones(req.observaciones())
                 .empleado(emp)
+                .version(1)
                 .build();
-        return toResponse(fichajeRepo.save(f));
+
+        // ── Hash chain ────────────────────────────────────────────────
+        String hashAnterior = obtenerUltimoHash(empleadoId);
+        f.setHashAnterior(hashAnterior);
+        f.setHashActual(hashService.calcularHashFichaje(f, hashAnterior));
+
+        Fichaje saved = fichajeRepo.save(f);
+
+        // ── Auditoría ─────────────────────────────────────────────────
+        auditoriaService.registrarCreacion(saved, emp.getUsuario() != null ? emp.getUsuario().getId() : null);
+
+        return toResponse(saved);
     }
 
     @Transactional
@@ -59,9 +81,43 @@ public class FichajeService {
         Fichaje f = fichajeRepo.findByEmpleadoIdAndCerradoFalse(empleadoId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "No hay fichaje abierto"));
+
         f.setHoraSalida(LocalDateTime.now());
         f.setCerrado(true);
+        f.setVersion(f.getVersion() + 1);
+
+        // Recalcular hash con los nuevos datos
+        f.setHashActual(hashService.calcularHashFichaje(f, f.getHashAnterior()));
+
         return toResponse(fichajeRepo.save(f));
+    }
+
+    /** Modificación admin con motivo obligatorio + audit log. */
+    @Transactional
+    public FichajeResponse modificar(Long fichajeId, FichajeModificarRequest req, Long usuarioId) {
+        if (req.motivo() == null || req.motivo().isBlank())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "El motivo de modificación es obligatorio");
+
+        Fichaje f = fichajeRepo.findById(fichajeId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        String antes = auditoriaService.snapshotFichaje(f);
+
+        if (req.horaEntrada()   != null) f.setHoraEntrada(req.horaEntrada());
+        if (req.horaSalida()    != null) f.setHoraSalida(req.horaSalida());
+        if (req.tipo()          != null) f.setTipo(req.tipo());
+        if (req.observaciones() != null) f.setObservaciones(req.observaciones());
+
+        f.setVersion(f.getVersion() + 1);
+        f.setHashActual(hashService.calcularHashFichaje(f, f.getHashAnterior()));
+
+        Fichaje saved = fichajeRepo.save(f);
+        String despues = auditoriaService.snapshotFichaje(saved);
+
+        auditoriaService.registrarModificacion(fichajeId, antes, despues, req.motivo(), usuarioId);
+
+        return toResponse(saved);
     }
 
     public List<FichajeResponse> misFichajes(Long empleadoId) {
@@ -80,11 +136,18 @@ public class FichajeService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Sin fichaje activo"));
     }
 
+    private String obtenerUltimoHash(Long empleadoId) {
+        return fichajeRepo.findByEmpleadoId(empleadoId).stream()
+                .findFirst()  // ordenados DESC, el más reciente
+                .map(Fichaje::getHashActual)
+                .orElse(null);
+    }
+
     private FichajeResponse toResponse(Fichaje f) {
         return new FichajeResponse(
                 f.getId(),
                 f.getHoraEntrada() != null ? f.getHoraEntrada().format(FMT) : null,
-                f.getHoraSalida() != null ? f.getHoraSalida().format(FMT) : null,
+                f.getHoraSalida()  != null ? f.getHoraSalida().format(FMT)  : null,
                 f.getLatitud(), f.getLongitud(),
                 f.isCerrado(),
                 f.getEmpleado().getId(),
