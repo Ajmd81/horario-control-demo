@@ -22,40 +22,61 @@ public class EmpleadoService {
     private final PasswordEncoder encoder;
 
     @Transactional
-    public EmpleadoResponse crear(EmpleadoRequest req, Long empresaId) {
+        public EmpleadoResponse crear(EmpleadoRequest req, Long empresaId) {
         Empresa empresa = empresaRepo.findById(empresaId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Empresa no encontrada"));
 
+        Usuario.Role role = Usuario.Role.valueOf(req.role());
+
         // ── Límite demo ───────────────────────────────────────────
-        if (empresa.isDemo() && Usuario.Role.valueOf(req.role()) == Usuario.Role.EMPLOYEE) {
-            int max = empresa.getMaxEmpleadosDemo() != null ? empresa.getMaxEmpleadosDemo() : 3;
-            long actual = empleadoRepo.countByEmpresaIdAndUsuario_RoleAndActivoTrue(
-                    empresaId, Usuario.Role.EMPLOYEE);
-            if (actual >= max) {
+        if (empresa.isDemo() && role == Usuario.Role.EMPLOYEE) {
+                int max = empresa.getMaxEmpleadosDemo() != null ? empresa.getMaxEmpleadosDemo() : 3;
+                long actual = empleadoRepo.countByEmpresaIdAndUsuario_RoleAndActivoTrue(
+                        empresaId, Usuario.Role.EMPLOYEE);
+                if (actual >= max) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                         "DEMO_LIMITE_EMPLEADOS: Límite de " + max +
                         " trabajadores alcanzado en el plan demo.");
-            }
+                }
         }
 
+        // ── Username único en empresa ─────────────────────────────
         if (usuarioRepo.existsByUsernameAndEmpresaId(req.username(), empresaId))
-            throw new ResponseStatusException(HttpStatus.CONFLICT,
-                    "El username ya existe en esta empresa");
+                throw new ResponseStatusException(HttpStatus.CONFLICT,
+                        "El username ya existe en esta empresa");
 
+        // ── Validar teléfono (obligatorio para empleados) ─────────
+        String telefonoNormalizado = null;
+        if (req.telefono() != null && !req.telefono().isBlank()) {
+                telefonoNormalizado = normalizarTelefonoEs(req.telefono());
+                if (!telefonoNormalizado.matches("^[67]\\d{8}$"))
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Teléfono inválido. Debe ser un móvil español (9 dígitos comenzando por 6 o 7)");
+                if (usuarioRepo.findByTelefonoAndEmpresaId(telefonoNormalizado, empresaId).isPresent())
+                throw new ResponseStatusException(HttpStatus.CONFLICT,
+                        "El teléfono ya está registrado en esta empresa");
+        } else if (role == Usuario.Role.EMPLOYEE) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "El teléfono es obligatorio para los empleados");
+        }
+
+        // ── Crear usuario ─────────────────────────────────────────
         Usuario usuario = Usuario.builder()
                 .username(req.username())
                 .password(encoder.encode(req.password()))
-                .role(Usuario.Role.valueOf(req.role()))
+                .role(role)
+                .telefono(telefonoNormalizado)
                 .activo(true)
                 .empresa(empresa)
                 .build();
         usuarioRepo.save(usuario);
 
+        // ── Crear empleado ────────────────────────────────────────
         Empleado empleado = Empleado.builder()
                 .nombre(req.nombre())
                 .apellido(req.apellido())
                 .dni(req.dni())
-                .telefono(req.telefono())
+                .telefono(telefonoNormalizado)
                 .activo(true)
                 .usuario(usuario)
                 .empresa(empresa)
@@ -63,7 +84,18 @@ public class EmpleadoService {
         empleadoRepo.save(empleado);
 
         return toResponse(empleado);
-    }
+        }
+
+        /**
+         * Normaliza un teléfono español: quita prefijo +34, espacios y guiones.
+         */
+        private String normalizarTelefonoEs(String input) {
+        if (input == null) return null;
+        String clean = input.replaceAll("[\\s\\-()]", "");
+        if (clean.startsWith("+34"))   clean = clean.substring(3);
+        if (clean.startsWith("0034")) clean = clean.substring(4);
+        return clean;
+        }
 
     public List<EmpleadoResponse> listar(Long empresaId) {
         return empleadoRepo.findByEmpresaIdAndActivoTrue(empresaId)

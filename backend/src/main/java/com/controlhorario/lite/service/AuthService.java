@@ -62,19 +62,26 @@ public class AuthService {
                     "Contacta con el administrador para activar tu licencia.");
         }
 
-        // ── 4. Credenciales ────────────────────────────────────────────
-        Usuario usuario = usuarioRepo
-                .findByUsernameAndEmpresaId(req.username(), empresa.getId())
+        // ── 4. Credenciales — detectar email o teléfono ────────────────
+        String identificador = req.username().trim();
+        boolean esTelefono = identificador.matches("^(\\+34)?[67]\\d{8}$");
+
+        Usuario usuario;
+        if (esTelefono) {
+        String tel = normalizarTelefonoEs(identificador);
+        usuario = usuarioRepo.findByTelefonoAndEmpresaId(tel, empresa.getId())
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.UNAUTHORIZED, "Credenciales incorrectas"));
+        } else {
+        usuario = usuarioRepo
+                .findByUsernameAndEmpresaId(identificador, empresa.getId())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.UNAUTHORIZED, "Credenciales incorrectas"));
+        }
 
         if (!encoder.matches(req.password(), usuario.getPassword()))
-            throw new ResponseStatusException(
-                    HttpStatus.UNAUTHORIZED, "Credenciales incorrectas");
-
-        if (!usuario.isActivo())
-            throw new ResponseStatusException(
-                    HttpStatus.FORBIDDEN, "Cuenta desactivada");
+        throw new ResponseStatusException(
+                HttpStatus.UNAUTHORIZED, "Credenciales incorrectas");
 
         // ── 5. Device binding (solo EMPLOYEE con deviceId) ─────────────
         if (usuario.getRole() == Usuario.Role.EMPLOYEE && req.deviceId() != null) {
@@ -115,4 +122,15 @@ public class AuthService {
 
         return builder.build();
     }
+        /**
+         * Normaliza un teléfono español: quita prefijo +34, espacios y guiones.
+         * Ejemplos: "+34 666 12 34 56" → "666123456" · "666123456" → "666123456"
+         */
+        private String normalizarTelefonoEs(String input) {
+        if (input == null) return null;
+        String clean = input.replaceAll("[\\s\\-()]", "");
+        if (clean.startsWith("+34")) clean = clean.substring(3);
+        if (clean.startsWith("0034")) clean = clean.substring(4);
+        return clean;
+        }
 }

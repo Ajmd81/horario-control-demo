@@ -20,6 +20,9 @@ public class Usuario {
     @Column(nullable = false)
     private String password;
 
+    @Column(length = 20, unique = false) 
+    private String telefono;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
