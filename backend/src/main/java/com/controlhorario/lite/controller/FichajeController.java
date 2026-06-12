@@ -68,7 +68,7 @@ public class FichajeController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> equipo(Authentication auth) {
         Claims c = (Claims) auth.getDetails();
-        Long empresaId = c.get("empresaId", Long.class);
+        Long empresaId = c.get("empresaId", Long.class); 
         return ResponseEntity.ok(fichajeService.todosEnEmpresa(empresaId));
     }
 
