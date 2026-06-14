@@ -144,11 +144,16 @@ public class IntegridadService {
 
             String hashAnterior = null;
             for (Fichaje f : fichajes) {
-                // Resetear version a 1 para limpiar el bug previo (sólo si nunca fue modificado realmente)
-                if (f.getVersion() == 2 && auditoriaRepo.findByFichajeIdOrderByTimestampDesc(f.getId())
-                        .stream().noneMatch(a -> a.getAccion() == AuditoriaFichaje.Accion.UPDATE)) {
-                    f.setVersion(1);
+                // ── Corregir version sobrante del bug histórico del salida ──
+                long updates = auditoriaRepo.findByFichajeIdOrderByTimestampDesc(f.getId()).stream()
+                        .filter(a -> a.getAccion() == AuditoriaFichaje.Accion.UPDATE)
+                        .count();
+                int versionEsperada = 1 + (int) updates;
+                if (f.getVersion() == versionEsperada + 1) {
+                    f.setVersion(versionEsperada);
                 }
+
+                // ── Recalcular hash de la cadena ──
                 f.setHashAnterior(hashAnterior);
                 f.setHashActual(hashService.calcularHashFichaje(f, hashAnterior));
                 hashAnterior = f.getHashActual();
