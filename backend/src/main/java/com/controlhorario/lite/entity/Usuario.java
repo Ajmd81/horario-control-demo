@@ -9,7 +9,7 @@ import lombok.*;
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class Usuario {
 
-    public enum Role { SUPERADMIN, ADMIN, EMPLOYEE }
+    public enum Role { SUPERADMIN, ADMIN, EMPLOYEE, RLT }
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
