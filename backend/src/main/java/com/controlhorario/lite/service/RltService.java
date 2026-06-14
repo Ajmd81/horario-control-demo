@@ -129,7 +129,8 @@ public class RltService {
                         f.isCerrado(),
                         f.getVersion(),
                         f.getVersion() > 1,
-                        f.getLatitud() != null && f.getLongitud() != null
+                        f.getLatitud() != null && f.getLongitud() != null,
+                        f.isMocked()
                 ))
                 .toList();
     }

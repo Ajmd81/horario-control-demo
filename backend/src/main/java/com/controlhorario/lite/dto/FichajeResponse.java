@@ -8,5 +8,6 @@ public record FichajeResponse(
         Double longitud,
         boolean cerrado,
         Long   empleadoId,
-        String empleadoNombre
+        String empleadoNombre,
+        boolean mocked
 ) {}

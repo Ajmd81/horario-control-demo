@@ -60,6 +60,7 @@ public class FichajeService {
                 .cerrado(false)
                 .tipo(tipo)
                 .observaciones(req.observaciones())
+                .mocked(req.mocked() != null && req.mocked())
                 .empleado(emp)
                 .version(1)
                 .build();
@@ -151,7 +152,8 @@ public class FichajeService {
                 f.getLatitud(), f.getLongitud(),
                 f.isCerrado(),
                 f.getEmpleado().getId(),
-                f.getEmpleado().getNombre() + " " + f.getEmpleado().getApellido()
+                f.getEmpleado().getNombre() + " " + f.getEmpleado().getApellido(),
+                f.isMocked()
         );
     }
 }

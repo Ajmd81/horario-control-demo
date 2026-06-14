@@ -6,5 +6,6 @@ public record FichajeEntradaRequest(
     Double latitud,
     Double longitud,
     Fichaje.Tipo tipo,
-    String observaciones
+    String observaciones,
+    Boolean mocked
 ) {}

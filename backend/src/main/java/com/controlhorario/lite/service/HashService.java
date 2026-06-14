@@ -27,6 +27,7 @@ public class HashService {
                 (f.getLongitud() != null ? f.getLongitud() : "") + "|" +
                 f.getTipo()                                     + "|" +
                 f.isCerrado()                                   + "|" +
+                f.isMocked()                                    + "|" +
                 f.getVersion();
         return sha256(payload);
     }

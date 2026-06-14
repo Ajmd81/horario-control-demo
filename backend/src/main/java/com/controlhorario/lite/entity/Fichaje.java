@@ -29,6 +29,10 @@ public class Fichaje {
     @Column(nullable = false)
     private boolean cerrado = false;
 
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean mocked = false;
+
     @Enumerated(EnumType.STRING)
     @Builder.Default
     @Column(nullable = false, length = 30)

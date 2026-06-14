@@ -26,7 +26,7 @@ public class FichajeController {
         Long empleadoId = empleadoId(auth);
         FichajeEntradaRequest r = req != null
                 ? req
-                : new FichajeEntradaRequest(null, null, null, null);
+                : new FichajeEntradaRequest(null, null, null, null, null);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(fichajeService.entrada(empleadoId, r));
     }

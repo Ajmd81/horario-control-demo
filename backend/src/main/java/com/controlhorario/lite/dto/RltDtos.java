@@ -46,7 +46,8 @@ public class RltDtos {
         boolean       cerrado,
         int           version,                  // si es > 1, fue modificado
         boolean       modificado,
-        boolean       conGeolocalizacion        // solo si tiene ubicación, sin lat/lng
+        boolean       conGeolocalizacion,        // solo si tiene ubicación, sin lat/lng
+        boolean       mocked
     ) {}
 
     /** Vacaciones anonimizadas para RLT. */
