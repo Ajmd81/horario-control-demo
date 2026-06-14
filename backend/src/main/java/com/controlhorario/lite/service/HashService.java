@@ -7,41 +7,40 @@ import org.springframework.stereotype.Service;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
-/**
- * Calcula hashes SHA-256 encadenados.
- * Cada fichaje se enlaza con el hash del anterior del mismo empleado.
- * Si alguien modifica un registro en BBDD, los hashes posteriores no validarán.
- */
 @Service
 public class HashService {
 
-    /** Hash de un fichaje: SHA-256(hashAnterior + datos del fichaje + version). */
+    /** Formatea un LocalDateTime de forma estable (sin nanosegundos). */
+    private String fmt(LocalDateTime ldt) {
+        return ldt != null ? ldt.truncatedTo(ChronoUnit.SECONDS).toString() : "";
+    }
+
     public String calcularHashFichaje(Fichaje f, String hashAnterior) {
         String payload = (hashAnterior != null ? hashAnterior : "GENESIS") + "|" +
                 f.getEmpleado().getId()                         + "|" +
-                f.getHoraEntrada()                              + "|" +
-                (f.getHoraSalida() != null ? f.getHoraSalida() : "") + "|" +
-                (f.getLatitud()    != null ? f.getLatitud()    : "") + "|" +
-                (f.getLongitud()   != null ? f.getLongitud()   : "") + "|" +
+                fmt(f.getHoraEntrada())                         + "|" +
+                fmt(f.getHoraSalida())                          + "|" +
+                (f.getLatitud()  != null ? f.getLatitud()  : "") + "|" +
+                (f.getLongitud() != null ? f.getLongitud() : "") + "|" +
                 f.getTipo()                                     + "|" +
                 f.isCerrado()                                   + "|" +
                 f.getVersion();
         return sha256(payload);
     }
 
-    /** Hash de una pausa. */
     public String calcularHashPausa(Pausa p, String hashAnterior) {
         String payload = (hashAnterior != null ? hashAnterior : "GENESIS") + "|" +
                 p.getFichaje().getId()                          + "|" +
-                p.getHoraInicio()                               + "|" +
-                (p.getHoraFin() != null ? p.getHoraFin() : "")  + "|" +
+                fmt(p.getHoraInicio())                          + "|" +
+                fmt(p.getHoraFin())                             + "|" +
                 p.getTipo()                                     + "|" +
                 p.isComputa();
         return sha256(payload);
     }
 
-    /** Hash de una entrada de auditoría — encadena con el hash del fichaje. */
     public String calcularHashAuditoria(Long fichajeId, String accion, String valorAntes,
                                          String valorDespues, String motivo, Long usuarioId) {
         String payload = fichajeId + "|" + accion + "|" +
@@ -52,7 +51,6 @@ public class HashService {
         return sha256(payload);
     }
 
-    /** Hash de la firma de compensación de extras. */
     public String calcularHashFirma(Long empleadoId, int anio, int mes, String modo) {
         String payload = empleadoId + "|" + anio + "|" + mes + "|" + modo + "|" +
                 System.currentTimeMillis();

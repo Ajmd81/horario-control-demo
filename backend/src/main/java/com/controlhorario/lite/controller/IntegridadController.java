@@ -10,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/verificacion/integridad")
@@ -42,5 +43,13 @@ public class IntegridadController {
     private Long empresaId(Authentication auth) {
         Claims c = (Claims) auth.getDetails();
         return c.get("empresaId", Long.class);
+    }
+
+    /** ADMIN: recalcula los hashes de todos los fichajes. SOLO usar tras cambios en fórmula del hash. */
+    @PostMapping("/recalcular")
+    @PreAuthorize("hasAnyRole('ADMIN','SUPERADMIN')")
+    public ResponseEntity<Map<String, Integer>> recalcular(Authentication auth) {
+        int n = service.recalcularHashes(empresaId(auth));
+        return ResponseEntity.ok(Map.of("recalculados", n));
     }
 }

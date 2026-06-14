@@ -12,6 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -53,7 +54,7 @@ public class FichajeService {
         Fichaje.Tipo tipo = req.tipo() != null ? req.tipo() : Fichaje.Tipo.JORNADA;
 
         Fichaje f = Fichaje.builder()
-                .horaEntrada(LocalDateTime.now())
+                .horaEntrada(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS))
                 .latitud(req.latitud())
                 .longitud(req.longitud())
                 .cerrado(false)
@@ -82,11 +83,10 @@ public class FichajeService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "No hay fichaje abierto"));
 
-        f.setHoraSalida(LocalDateTime.now());
+        f.setHoraSalida(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
         f.setCerrado(true);
-        f.setVersion(f.getVersion() + 1);
-
-        // Recalcular hash con los nuevos datos
+        // NO incrementamos versión: el cierre forma parte del ciclo natural del fichaje.
+        // La versión solo se incrementa en modificaciones manuales (PATCH /fichajes/{id}).
         f.setHashActual(hashService.calcularHashFichaje(f, f.getHashAnterior()));
 
         return toResponse(fichajeRepo.save(f));
@@ -104,8 +104,8 @@ public class FichajeService {
 
         String antes = auditoriaService.snapshotFichaje(f);
 
-        if (req.horaEntrada()   != null) f.setHoraEntrada(req.horaEntrada());
-        if (req.horaSalida()    != null) f.setHoraSalida(req.horaSalida());
+        if (req.horaEntrada()   != null) f.setHoraEntrada(req.horaEntrada().truncatedTo(ChronoUnit.SECONDS));
+        if (req.horaSalida()    != null) f.setHoraSalida(req.horaSalida().truncatedTo(ChronoUnit.SECONDS));
         if (req.tipo()          != null) f.setTipo(req.tipo());
         if (req.observaciones() != null) f.setObservaciones(req.observaciones());
 

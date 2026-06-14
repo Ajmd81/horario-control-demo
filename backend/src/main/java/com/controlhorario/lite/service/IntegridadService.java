@@ -129,6 +129,36 @@ public class IntegridadService {
         return resultado;
     }
 
+    /** Recalcula los hashes de TODOS los fichajes y pausas. */
+    @Transactional
+    public int recalcularHashes(Long empresaId) {
+        List<Fichaje> todos = fichajeRepo.findByEmpresaId(empresaId);
+        Map<Long, List<Fichaje>> porEmpleado = todos.stream()
+                .collect(Collectors.groupingBy(f -> f.getEmpleado().getId()));
+
+        int recalculados = 0;
+        for (var entry : porEmpleado.entrySet()) {
+            List<Fichaje> fichajes = entry.getValue().stream()
+                    .sorted(Comparator.comparing(Fichaje::getHoraEntrada))
+                    .toList();
+
+            String hashAnterior = null;
+            for (Fichaje f : fichajes) {
+                // Resetear version a 1 para limpiar el bug previo (sólo si nunca fue modificado realmente)
+                if (f.getVersion() == 2 && auditoriaRepo.findByFichajeIdOrderByTimestampDesc(f.getId())
+                        .stream().noneMatch(a -> a.getAccion() == AuditoriaFichaje.Accion.UPDATE)) {
+                    f.setVersion(1);
+                }
+                f.setHashAnterior(hashAnterior);
+                f.setHashActual(hashService.calcularHashFichaje(f, hashAnterior));
+                hashAnterior = f.getHashActual();
+                recalculados++;
+            }
+            fichajeRepo.saveAll(fichajes);
+        }
+        log.info("Recalculados {} hashes para empresa {}", recalculados, empresaId);
+        return recalculados;
+    }
     /** Versión anonimizada para RLT. */
     public IntegridadResumen verificarResumen(Long empresaId) {
         IntegridadResultado r = verificarEmpresa(empresaId, false);
