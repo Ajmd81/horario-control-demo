@@ -186,7 +186,7 @@ public class StripeService {
         log.info("✓ Suscripción activada: empresa {} plan {}", empresa.getSlug(), plan);
     }
 
-    private void handleSubscriptionChange(Event event) {
+    private void handleSubscriptionChange(Event event) throws StripeException{
         Subscription subscription = (Subscription) event.getDataObjectDeserializer().deserializeUnsafe();
 
         Empresa empresa = empresaRepo.findByStripeCustomerId(subscription.getCustomer())
