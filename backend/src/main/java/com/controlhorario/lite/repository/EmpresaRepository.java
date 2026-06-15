@@ -7,4 +7,5 @@ import java.util.Optional;
 public interface EmpresaRepository extends JpaRepository<Empresa, Long> {
     Optional<Empresa> findBySlug(String slug);
     boolean existsBySlug(String slug);
+    java.util.Optional<Empresa> findByStripeCustomerId(String striperCustomerId);
 }

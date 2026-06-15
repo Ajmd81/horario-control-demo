@@ -3,6 +3,7 @@ package com.controlhorario.lite.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
 @Entity
@@ -33,6 +34,21 @@ public class Empresa {
     @Builder.Default
     @Column(name = "max_empleados_demo")
     private Integer maxEmpleadosDemo = 3;
+
+    @Column(name = "stripe_customer_id", length = 64)
+    private String stripeCustomerId;
+
+    @Column(name = "stripe_subscription_id", length = 64)
+    private String stripeSubscriptionId;
+
+    @Column(length = 20)
+    private String plan; // BASICO, PROFESIONAL, ULTIMATE
+
+    @Column(name = "subscription_status", length = 20)
+    private String subscriptiosStatus; // ACTIVE, CANCELED, PAST_DUE, etc.
+
+    @Column(name = "current_period_end")
+    private LocalDateTime currentPeriodEnd;
 
     public boolean isDemoExpirada() {
         if (!demo || fechaInicioDemo == null) return false;
