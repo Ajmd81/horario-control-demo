@@ -1,6 +1,7 @@
 package com.controlhorario.lite.controller;
 
 import com.controlhorario.lite.dto.FichajeEntradaRequest;
+import com.controlhorario.lite.dto.FichajeSalidaRequest;
 import com.controlhorario.lite.dto.FichajeModificarRequest;
 import com.controlhorario.lite.dto.FichajeResponse;
 import com.controlhorario.lite.service.FichajeService;
@@ -26,7 +27,7 @@ public class FichajeController {
         Long empleadoId = empleadoId(auth);
         FichajeEntradaRequest r = req != null
                 ? req
-                : new FichajeEntradaRequest(null, null, null, null, null);
+                : new FichajeEntradaRequest(null, null, null, null, null, null, null);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(fichajeService.entrada(empleadoId, r));
     }
@@ -45,8 +46,9 @@ public class FichajeController {
     /** El empleado ficha su salida */
     @PostMapping("/salida")
     @PreAuthorize("hasRole('EMPLOYEE')")
-    public ResponseEntity<?> salida(Authentication auth) {
-        return ResponseEntity.ok(fichajeService.salida(empleadoId(auth)));
+    public ResponseEntity<?> salida(@RequestBody(required = false) FichajeSalidaRequest req,
+                                     Authentication auth) {
+        return ResponseEntity.ok(fichajeService.salida(empleadoId(auth), req));
     }
 
     /** El empleado consulta su fichaje activo */

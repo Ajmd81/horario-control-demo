@@ -30,6 +30,12 @@ public class FichajeService {
 
     @Transactional
     public FichajeResponse entrada(Long empleadoId, FichajeEntradaRequest req) {
+        // ── Idempotencia: si ya existe un fichaje con este clientId, devolverlo ──
+        if (req.clientId() != null && !req.clientId().isBlank()) {
+            var existente = fichajeRepo.findByEmpleadoIdAndClientId(empleadoId, req.clientId());
+            if (existente.isPresent()) return toResponse(existente.get());
+        }
+
         if (fichajeRepo.findByEmpleadoIdAndCerradoFalse(empleadoId).isPresent())
             throw new ResponseStatusException(HttpStatus.CONFLICT,
                     "Ya tienes un fichaje abierto. Registra la salida primero.");
@@ -37,57 +43,69 @@ public class FichajeService {
         Empleado emp = empleadoRepo.findById(empleadoId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        // ── Bloqueo por vacaciones aprobadas ──────────────────────────
-        if (vacacionesService.estaEnVacaciones(empleadoId, LocalDate.now()))
+        // ── Hora efectiva (móvil offline o servidor) ──
+        LocalDateTime horaEntrada = (req.clientTimestamp() != null
+                ? req.clientTimestamp()
+                : LocalDateTime.now()).truncatedTo(ChronoUnit.SECONDS);
+
+        // ── Bloqueo por vacaciones aprobadas ──
+        if (vacacionesService.estaEnVacaciones(empleadoId, horaEntrada.toLocalDate()))
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
                     "VACACIONES_APROBADAS: Hoy estás de vacaciones aprobadas.");
 
-        // ── Bloqueo por límite anual extras (Art. 35.2 ET) ────────────
+        // ── Bloqueo por límite anual extras (Art. 35.2 ET) ──
         double horasContratadasDia = emp.getHorasContratadasMin() / 60.0;
         double extrasAnio = computoService.calcularExtrasAcumuladasAnio(
-                empleadoId, LocalDate.now().getYear(), horasContratadasDia);
+                empleadoId, horaEntrada.getYear(), horasContratadasDia);
         if (extrasAnio >= ComputoService.LIMITE_ANUAL_EXTRAS)
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
                     "LIMITE_ANUAL_EXTRAS: Has alcanzado las 80 horas extras anuales legales.");
 
-        // ── Crear fichaje ─────────────────────────────────────────────
         Fichaje.Tipo tipo = req.tipo() != null ? req.tipo() : Fichaje.Tipo.JORNADA;
 
         Fichaje f = Fichaje.builder()
-                .horaEntrada(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS))
+                .horaEntrada(horaEntrada)
                 .latitud(req.latitud())
                 .longitud(req.longitud())
                 .cerrado(false)
                 .tipo(tipo)
                 .observaciones(req.observaciones())
                 .mocked(req.mocked() != null && req.mocked())
+                .clientId(req.clientId())
                 .empleado(emp)
                 .version(1)
                 .build();
 
-        // ── Hash chain ────────────────────────────────────────────────
         String hashAnterior = obtenerUltimoHash(empleadoId);
         f.setHashAnterior(hashAnterior);
         f.setHashActual(hashService.calcularHashFichaje(f, hashAnterior));
 
         Fichaje saved = fichajeRepo.save(f);
-
-        // ── Auditoría ─────────────────────────────────────────────────
         auditoriaService.registrarCreacion(saved, emp.getUsuario() != null ? emp.getUsuario().getId() : null);
 
         return toResponse(saved);
     }
 
     @Transactional
-    public FichajeResponse salida(Long empleadoId) {
+    public FichajeResponse salida(Long empleadoId, FichajeSalidaRequest req) {
         Fichaje f = fichajeRepo.findByEmpleadoIdAndCerradoFalse(empleadoId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "No hay fichaje abierto"));
+                .orElse(null);
 
-        f.setHoraSalida(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
+        // ── Idempotencia: si no hay activo pero existe uno cerrado con este clientId, devolverlo ──
+        if (f == null && req != null && req.clientId() != null && !req.clientId().isBlank()) {
+            var cerrado = fichajeRepo.findByEmpleadoIdAndClientId(empleadoId, req.clientId());
+            if (cerrado.isPresent() && cerrado.get().isCerrado()) return toResponse(cerrado.get());
+        }
+
+        if (f == null)
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No hay fichaje abierto");
+
+        LocalDateTime horaSalida = (req != null && req.clientTimestamp() != null
+                ? req.clientTimestamp()
+                : LocalDateTime.now()).truncatedTo(ChronoUnit.SECONDS);
+
+        f.setHoraSalida(horaSalida);
         f.setCerrado(true);
-        // NO incrementamos versión: el cierre forma parte del ciclo natural del fichaje.
-        // La versión solo se incrementa en modificaciones manuales (PATCH /fichajes/{id}).
         f.setHashActual(hashService.calcularHashFichaje(f, f.getHashAnterior()));
 
         return toResponse(fichajeRepo.save(f));

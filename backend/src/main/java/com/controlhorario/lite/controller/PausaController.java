@@ -24,12 +24,14 @@ public class PausaController {
             Authentication auth) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(service.iniciar(empleadoId(auth),
-                        req != null ? req : new IniciarPausaRequest(null)));
+                        req != null ? req : new IniciarPausaRequest(null, null, null)));
     }
 
     @PostMapping("/reanudar")
-    public ResponseEntity<PausaResponse> reanudar(Authentication auth) {
-        return ResponseEntity.ok(service.reanudar(empleadoId(auth)));
+    public ResponseEntity<PausaResponse> reanudar(
+            @RequestBody(required = false) ReanudarPausaRequest req,
+            Authentication auth) {
+        return ResponseEntity.ok(service.reanudar(empleadoId(auth), req));
     }
 
     @GetMapping("/activa")

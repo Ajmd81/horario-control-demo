@@ -5,7 +5,16 @@ import java.time.LocalDateTime;
 
 public class PausaDtos {
 
-    public record IniciarPausaRequest(Pausa.Tipo tipo) {}
+    public record IniciarPausaRequest(
+        Pausa.Tipo tipo,
+        String clientId,
+        LocalDateTime clientTimestamp
+    ) {}
+
+    public record ReanudarPausaRequest(
+        String clientId,
+        LocalDateTime clientTimestamp
+    ) {}
 
     public record PausaResponse(
         Long id,

@@ -14,6 +14,9 @@ public class Pausa {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "client_id, length = 64")
+    private String clientId;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fichaje_id", nullable = false)
     private Fichaje fichaje;

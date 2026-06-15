@@ -16,6 +16,9 @@ public class Fichaje {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "client_id, length = 64")
+    private String clientId;
+
     @Column(name = "hora_entrada", nullable = false)
     private LocalDateTime horaEntrada;
 

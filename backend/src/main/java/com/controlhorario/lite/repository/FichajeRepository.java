@@ -46,4 +46,6 @@ public interface FichajeRepository extends JpaRepository<Fichaje, Long> {
         @Param("desde") LocalDateTime desde,
         @Param("hasta") LocalDateTime hasta
     );
+
+    Optional<Fichaje> findByEmpleadoIdAndClientId(Long empleadoId, String clientId);
 }

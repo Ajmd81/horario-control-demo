@@ -8,4 +8,5 @@ import java.util.Optional;
 public interface PausaRepository extends JpaRepository<Pausa, Long> {
     Optional<Pausa> findByFichajeIdAndHoraFinIsNull(Long fichajeId);
     List<Pausa> findByFichajeIdOrderByHoraInicioAsc(Long fichajeId);
+    Optional<Pausa> findByFichajeIdAndClientId(Long fichajeId, String clientId);
 }
