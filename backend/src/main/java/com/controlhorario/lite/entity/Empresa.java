@@ -45,7 +45,7 @@ public class Empresa {
     private String plan; // BASICO, PROFESIONAL, ULTIMATE
 
     @Column(name = "subscription_status", length = 20)
-    private String subscriptiosStatus; // ACTIVE, CANCELED, PAST_DUE, etc.
+    private String subscriptionStatus; // ACTIVE, CANCELED, PAST_DUE, etc.
 
     @Column(name = "current_period_end")
     private LocalDateTime currentPeriodEnd;

@@ -3,6 +3,7 @@ com/controlhorario/lite/entity/AuditoriaFichaje.class
 com/controlhorario/lite/entity/CompensacionExtras$CompensacionExtrasBuilder.class
 com/controlhorario/lite/dto/RltDtos$PaginaFichajes.class
 com/controlhorario/lite/dto/IntegridadDtos$IntegridadResumen.class
+com/controlhorario/lite/controller/StripeController.class
 com/controlhorario/lite/entity/Pausa.class
 com/controlhorario/lite/service/EmpleadoService.class
 com/controlhorario/lite/dto/RltDtos$VacacionesAnonima.class
@@ -17,6 +18,7 @@ com/controlhorario/lite/dto/LoginRequest.class
 com/controlhorario/lite/controller/EmpleadoController.class
 com/controlhorario/lite/entity/CompensacionExtras.class
 com/controlhorario/lite/entity/Fichaje$FichajeBuilder.class
+com/controlhorario/lite/service/StripeService.class
 com/controlhorario/lite/service/HashService.class
 com/controlhorario/lite/entity/Vacaciones.class
 com/controlhorario/lite/controller/ExportacionController.class
@@ -66,6 +68,7 @@ com/controlhorario/lite/entity/Empresa$EmpresaBuilder.class
 com/controlhorario/lite/dto/EmpleadoRequest.class
 com/controlhorario/lite/entity/AuditoriaFichaje$Accion.class
 com/controlhorario/lite/service/SuperadminService.class
+com/controlhorario/lite/dto/EmpresaInfoResponse.class
 com/controlhorario/lite/dto/EmpleadoResponse.class
 com/controlhorario/lite/dto/LoginResponse$LoginResponseBuilder.class
 com/controlhorario/lite/dto/PausaDtos.class
@@ -87,6 +90,7 @@ com/controlhorario/lite/service/PausaService.class
 com/controlhorario/lite/security/JwtAuthFilter.class
 com/controlhorario/lite/controller/RegistroPublicoController.class
 com/controlhorario/lite/entity/Empleado.class
+com/controlhorario/lite/controller/EmpresaController.class
 com/controlhorario/lite/controller/SuperadminController.class
 com/controlhorario/lite/controller/ComputoController.class
 com/controlhorario/lite/entity/Usuario.class

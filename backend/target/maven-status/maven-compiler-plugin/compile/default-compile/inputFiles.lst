@@ -5,6 +5,7 @@
 /Users/antoniojesus/Desktop/Control-Horario-Lite/backend/src/main/java/com/controlhorario/lite/controller/CompensacionController.java
 /Users/antoniojesus/Desktop/Control-Horario-Lite/backend/src/main/java/com/controlhorario/lite/controller/ComputoController.java
 /Users/antoniojesus/Desktop/Control-Horario-Lite/backend/src/main/java/com/controlhorario/lite/controller/EmpleadoController.java
+/Users/antoniojesus/Desktop/Control-Horario-Lite/backend/src/main/java/com/controlhorario/lite/controller/EmpresaController.java
 /Users/antoniojesus/Desktop/Control-Horario-Lite/backend/src/main/java/com/controlhorario/lite/controller/ExportacionController.java
 /Users/antoniojesus/Desktop/Control-Horario-Lite/backend/src/main/java/com/controlhorario/lite/controller/FichajeController.java
 /Users/antoniojesus/Desktop/Control-Horario-Lite/backend/src/main/java/com/controlhorario/lite/controller/IntegridadController.java
@@ -12,6 +13,7 @@
 /Users/antoniojesus/Desktop/Control-Horario-Lite/backend/src/main/java/com/controlhorario/lite/controller/PausaController.java
 /Users/antoniojesus/Desktop/Control-Horario-Lite/backend/src/main/java/com/controlhorario/lite/controller/RegistroPublicoController.java
 /Users/antoniojesus/Desktop/Control-Horario-Lite/backend/src/main/java/com/controlhorario/lite/controller/RltController.java
+/Users/antoniojesus/Desktop/Control-Horario-Lite/backend/src/main/java/com/controlhorario/lite/controller/StripeController.java
 /Users/antoniojesus/Desktop/Control-Horario-Lite/backend/src/main/java/com/controlhorario/lite/controller/SuperadminController.java
 /Users/antoniojesus/Desktop/Control-Horario-Lite/backend/src/main/java/com/controlhorario/lite/controller/VacacionesController.java
 /Users/antoniojesus/Desktop/Control-Horario-Lite/backend/src/main/java/com/controlhorario/lite/dto/CompensacionDtos.java
@@ -19,6 +21,7 @@
 /Users/antoniojesus/Desktop/Control-Horario-Lite/backend/src/main/java/com/controlhorario/lite/dto/CrearEmpresaDemoRequest.java
 /Users/antoniojesus/Desktop/Control-Horario-Lite/backend/src/main/java/com/controlhorario/lite/dto/EmpleadoRequest.java
 /Users/antoniojesus/Desktop/Control-Horario-Lite/backend/src/main/java/com/controlhorario/lite/dto/EmpleadoResponse.java
+/Users/antoniojesus/Desktop/Control-Horario-Lite/backend/src/main/java/com/controlhorario/lite/dto/EmpresaInfoResponse.java
 /Users/antoniojesus/Desktop/Control-Horario-Lite/backend/src/main/java/com/controlhorario/lite/dto/FichajeEntradaRequest.java
 /Users/antoniojesus/Desktop/Control-Horario-Lite/backend/src/main/java/com/controlhorario/lite/dto/FichajeModificarRequest.java
 /Users/antoniojesus/Desktop/Control-Horario-Lite/backend/src/main/java/com/controlhorario/lite/dto/FichajeResponse.java
@@ -65,5 +68,6 @@
 /Users/antoniojesus/Desktop/Control-Horario-Lite/backend/src/main/java/com/controlhorario/lite/service/PausaService.java
 /Users/antoniojesus/Desktop/Control-Horario-Lite/backend/src/main/java/com/controlhorario/lite/service/RegistroPublicoService.java
 /Users/antoniojesus/Desktop/Control-Horario-Lite/backend/src/main/java/com/controlhorario/lite/service/RltService.java
+/Users/antoniojesus/Desktop/Control-Horario-Lite/backend/src/main/java/com/controlhorario/lite/service/StripeService.java
 /Users/antoniojesus/Desktop/Control-Horario-Lite/backend/src/main/java/com/controlhorario/lite/service/SuperadminService.java
 /Users/antoniojesus/Desktop/Control-Horario-Lite/backend/src/main/java/com/controlhorario/lite/service/VacacionesService.java
