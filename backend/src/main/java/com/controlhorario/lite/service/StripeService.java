@@ -158,8 +158,7 @@ public class StripeService {
     }
 
     private void handleCheckoutCompleted(Event event) throws StripeException {
-        Session session = (Session) event.getDataObjectDeserializer().getObject()
-                .orElseThrow(() -> new IllegalStateException("Cannot deserialize session"));
+        Session session = (Session) event.getDataObjectDeserializer().deserializeUnsafe();
 
         String empresaIdStr = session.getMetadata().get("empresaId");
         String plan = session.getMetadata().get("plan");
@@ -188,8 +187,7 @@ public class StripeService {
     }
 
     private void handleSubscriptionChange(Event event) {
-        Subscription subscription = (Subscription) event.getDataObjectDeserializer().getObject()
-                .orElseThrow(() -> new IllegalStateException("Cannot deserialize subscription"));
+        Subscription subscription = (Subscription) event.getDataObjectDeserializer().deserializeUnsafe();
 
         Empresa empresa = empresaRepo.findByStripeCustomerId(subscription.getCustomer())
                 .orElse(null);
@@ -200,10 +198,8 @@ public class StripeService {
                 LocalDateTime.ofEpochSecond(subscription.getCurrentPeriodEnd(), 0, ZoneOffset.UTC)
         );
 
-        // Si está canceled o unpaid, podríamos volver a demo
         if ("CANCELED".equalsIgnoreCase(subscription.getStatus())) {
             log.warn("Suscripción cancelada para empresa {}", empresa.getSlug());
-            // No la pongo en demo automáticamente: deja que el periodo en curso siga
         }
 
         empresaRepo.save(empresa);
