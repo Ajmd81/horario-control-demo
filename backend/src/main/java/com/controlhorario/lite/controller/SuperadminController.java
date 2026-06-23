@@ -15,7 +15,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/superadmin")
-@PreAuthorize("hasRole('SUPER_ADMIN')")   // fix: era 'SUPERADMIN', no cuadraba con el enum
+@PreAuthorize("hasRole('SUPERADMIN')")   // fix: era 'SUPERADMIN', no cuadraba con el enum
 @RequiredArgsConstructor
 @Slf4j                                     // fix: faltaba para que log.warn compile
 public class SuperadminController {

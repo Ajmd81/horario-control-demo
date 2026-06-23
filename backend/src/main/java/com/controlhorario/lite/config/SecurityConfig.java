@@ -52,7 +52,7 @@ public class SecurityConfig {
                         // por lo que la autoridad generada en JwtAuthFilter es "ROLE_SUPER_ADMIN".
                         // hasRole("SUPERADMIN") exigía "ROLE_SUPERADMIN" → no coincidía nunca.
                         // Cambiado a hasRole("SUPER_ADMIN") para que el matching sea correcto.
-                        .requestMatchers("/api/superadmin/**").hasRole("SUPER_ADMIN")
+                        .requestMatchers("/api/superadmin/**").hasRole("SUPERADMIN")
                         .anyRequest().authenticated()
                 )
                 .headers(h -> h
